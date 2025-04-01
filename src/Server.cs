@@ -36,7 +36,7 @@ async Task HandleClientSocketAsync(Socket client)
                 var receivedMessage = Encoding.UTF8.GetString(buffer, 0, bytesRead).Trim();
                 string response = ParseEchoCommand(receivedMessage);
 
-                await client.SendAsync(Encoding.UTF8.GetBytes("response\r\n"), SocketFlags.None);
+                await client.SendAsync(Encoding.UTF8.GetBytes(response + "\r\n"), SocketFlags.None);
 
             }
             else
