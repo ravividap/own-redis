@@ -8,19 +8,25 @@ Console.WriteLine("Logs from your program will appear here!");
 // Uncomment this block to pass the first stage
 TcpListener server = new TcpListener(IPAddress.Any, 6379);
 server.Start();
-var client = server.AcceptSocket();
 
-byte[] buffer = new byte[256];
-
-
-while (client.Connected)
+while (true)
 {
-    client.Receive(buffer); // Read from the client socket
+    var client = await server.AcceptSocketAsync();
 
-    client.Send(Encoding.UTF8.GetBytes("+PONG\r\n"), SocketFlags.None);
+    await HandleClientSocketAsync(client);
 }
 
-client.Shutdown(SocketShutdown.Both);
-client.Close();
-server.Stop();
+async Task HandleClientSocketAsync(Socket client)
+{
+    byte[] buffer = new byte[256];
+
+    while (client.Connected)
+    {
+        await client.ReceiveAsync(buffer); // Read from the client socket
+
+        await client.SendAsync(Encoding.UTF8.GetBytes("+PONG\r\n"), SocketFlags.None);
+    }
+}
+
+
 
