@@ -1,6 +1,7 @@
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
+using System.Text.Json;
 
 // You can use print statements as follows for debugging, they'll be visible when running tests.
 Console.WriteLine("Logs from your program will appear here!");
@@ -21,7 +22,7 @@ while (true)
 
 async Task HandleClientSocketAsync(Socket client)
 {
-    byte[] buffer = new byte[256];
+    byte[] buffer = new byte[1024];
 
     try
     {
@@ -29,8 +30,15 @@ async Task HandleClientSocketAsync(Socket client)
         {
             var bytesRead = await client.ReceiveAsync(buffer); // Read from the client socket
 
+
             if (bytesRead > 0)
-                await client.SendAsync(Encoding.UTF8.GetBytes("+PONG\r\n"), SocketFlags.None);
+            {
+                var receivedMessage = Encoding.UTF8.GetString(buffer, 0, bytesRead).Trim();
+                string response = ParseEchoCommand(receivedMessage);
+
+                await client.SendAsync(Encoding.UTF8.GetBytes("response\r\n"), SocketFlags.None);
+
+            }
             else
                 break;
         }
@@ -47,5 +55,17 @@ async Task HandleClientSocketAsync(Socket client)
 
 }
 
+string ParseEchoCommand(string message)
+{
+    try
+    {
+        string[]? command = JsonSerializer.Deserialize<string[]>(message);
+        if (command != null && command.Length >= 2 && command[0].Equals("ECHO", StringComparison.OrdinalIgnoreCase))
+        {
+            return command[1]; // Return whatever follows "ECHO"
+        }
+    }
+    catch (JsonException) { }
 
-
+    return "-ERR Invalid Command"; // Redis-style error response
+}
