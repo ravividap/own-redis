@@ -16,3 +16,4 @@ client.Send(Encoding.UTF8.GetBytes("+PONG\r\n"), SocketFlags.None);
 
 client.Shutdown(SocketShutdown.Both);
 client.Close();
+server.Stop(); 
