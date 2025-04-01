@@ -60,20 +60,22 @@ string ParseEchoCommand(string message)
     if (string.IsNullOrWhiteSpace(message))
         return "-ERR Invalid Command\r\n";
 
-    // Parsing the RESP format
-    var parts = message.Split(["\r\n"], StringSplitOptions.RemoveEmptyEntries);
+    // Splitting based on Redis RESP line endings
+    var parts = message.Split("\r\n", StringSplitOptions.RemoveEmptyEntries);
 
-    if (parts.Length >= 2 && parts[0] == "*2" && parts[1].StartsWith("$"))
+    if (parts.Length >= 4 && parts[0] == "*2" && parts[1].StartsWith("$"))
     {
-        var commandName = parts[2];
-        if (commandName.Equals("ECHO", StringComparison.OrdinalIgnoreCase) && parts.Length > 3)
+        string commandName = parts[2];
+
+        if (commandName.Equals("ECHO", StringComparison.OrdinalIgnoreCase) && parts[3].StartsWith("$"))
         {
-            var echoMessage = parts[3];
-            return $"${echoMessage.Length}\r\n{echoMessage}\r\n"; // Forming the response as a bulk string
+            // Extracting the message
+            string echoMessage = parts[4];
+            return $"${echoMessage.Length}\r\n{echoMessage}\r\n"; // Bulk string response
         }
         else if (commandName.Equals("PING", StringComparison.OrdinalIgnoreCase))
         {
-            return "+PONG\r\n";
+            return "+PONG\r\n"; // Simple string response
         }
     }
 
