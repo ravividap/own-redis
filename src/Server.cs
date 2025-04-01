@@ -63,7 +63,7 @@ string ParseEchoCommand(string message)
     // Splitting based on Redis RESP line endings
     var parts = message.Split("\r\n", StringSplitOptions.RemoveEmptyEntries);
 
-    if (parts.Length > 2 && parts[0] == "*2" && parts[1].StartsWith("$"))
+    if (parts.Length > 2)
     {
         string commandName = parts[2];
 
