@@ -7,7 +7,7 @@ using System.Text.Json;
 Console.WriteLine("Logs from your program will appear here!");
 
 // Uncomment this block to pass the first stage
-TcpListener server = new TcpListener(IPAddress.Any, 6378);
+TcpListener server = new TcpListener(IPAddress.Any, 6379);
 server.Start();
 
 while (true)
