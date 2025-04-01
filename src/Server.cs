@@ -13,22 +13,36 @@ while (true)
 {
     var client = await server.AcceptSocketAsync();
 
-    await HandleClientSocketAsync(client);
+    // Handle each client in a separate task
+    _ = Task.Run(() => HandleClientSocketAsync(client));
 }
 
 async Task HandleClientSocketAsync(Socket client)
 {
     byte[] buffer = new byte[256];
 
-    while (client.Connected)
+    try
     {
-        var bytesRead = await client.ReceiveAsync(buffer); // Read from the client socket
+        while (client.Connected)
+        {
+            var bytesRead = await client.ReceiveAsync(buffer); // Read from the client socket
 
-        if (bytesRead > 0)
-            await client.SendAsync(Encoding.UTF8.GetBytes("+PONG\r\n"), SocketFlags.None);
-        else
-            break;
+            if (bytesRead > 0)
+                await client.SendAsync(Encoding.UTF8.GetBytes("+PONG\r\n"), SocketFlags.None);
+            else
+                break;
+        }
     }
+    catch (SocketException ex)
+    {
+        Console.WriteLine($"Socket error: {ex.Message}");
+    }
+    finally
+    {
+        Console.WriteLine($"Client {client.RemoteEndPoint} disconnected.");
+        client.Close();
+    }
+
 }
 
 
