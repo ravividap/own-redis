@@ -22,9 +22,10 @@ async Task HandleClientSocketAsync(Socket client)
 
     while (client.Connected)
     {
-        await client.ReceiveAsync(buffer); // Read from the client socket
+        var bytesRead = await client.ReceiveAsync(buffer); // Read from the client socket
 
-        await client.SendAsync(Encoding.UTF8.GetBytes("+PONG\r\n"), SocketFlags.None);
+        if (bytesRead > 0)
+            await client.SendAsync(Encoding.UTF8.GetBytes("+PONG\r\n"), SocketFlags.None);
     }
 }
 
