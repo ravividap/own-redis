@@ -24,6 +24,8 @@ async Task HandleClientSocketAsync(Socket client)
 {
     byte[] buffer = new byte[1024];
 
+    Dictionary<string, string> data = new Dictionary<string, string>();
+
     try
     {
         while (client.Connected)
@@ -34,7 +36,7 @@ async Task HandleClientSocketAsync(Socket client)
             if (bytesRead > 0)
             {
                 var receivedMessage = Encoding.UTF8.GetString(buffer, 0, bytesRead).Trim();
-                string response = ParseEchoCommand(receivedMessage);
+                string response = ParseEchoCommand(receivedMessage, data);
 
                 await client.SendAsync(Encoding.UTF8.GetBytes(response), SocketFlags.None);
 
@@ -55,7 +57,7 @@ async Task HandleClientSocketAsync(Socket client)
 
 }
 
-string ParseEchoCommand(string message)
+string ParseEchoCommand(string message, Dictionary<string, string> data)
 {
     if (string.IsNullOrWhiteSpace(message))
         return "-ERR Invalid Command\r\n";
@@ -76,6 +78,20 @@ string ParseEchoCommand(string message)
         else if (commandName.Equals("PING", StringComparison.OrdinalIgnoreCase))
         {
             return "+PONG\r\n"; // Simple string response
+        }
+        else if (commandName.Equals("SET", StringComparison.OrdinalIgnoreCase))
+        {
+            data.Add(parts[3], parts[4]);
+            return $"+OK\r\n";
+        }
+        else if (commandName.Equals("GET", StringComparison.OrdinalIgnoreCase))
+        {
+            var key = parts[4];
+            if (!data.ContainsKey(key))
+                return $"$-1\r\n";
+
+            var value = data[key];
+            return $"${value.Length}\r\n{value}\r\n";
         }
     }
 
