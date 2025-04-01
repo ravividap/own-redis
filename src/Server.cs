@@ -14,7 +14,7 @@ while (true)
     var client = await server.AcceptSocketAsync();
 
     // Handle each client in a separate task
-    _ = Task.Run(() => HandleClientSocketAsync(client));
+    await HandleClientSocketAsync(client);
 }
 
 async Task HandleClientSocketAsync(Socket client)
