@@ -10,13 +10,17 @@ TcpListener server = new TcpListener(IPAddress.Any, 6379);
 server.Start();
 var client = server.AcceptSocket();
 
+while (true)
+{
 
-byte[] buffer = new byte[256];
-int bytesRead = client.Receive(buffer); // Read from the client socket
+    byte[] buffer = new byte[256];
+    int bytesRead = client.Receive(buffer); // Read from the client socket
 
-client.Send(Encoding.UTF8.GetBytes("+PONG\r\n"), SocketFlags.None);
+    client.Send(Encoding.UTF8.GetBytes("+PONG\r\n"), SocketFlags.None);
+}
 
 client.Shutdown(SocketShutdown.Both);
 client.Close();
+
 server.Stop();
 
