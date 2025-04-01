@@ -71,6 +71,10 @@ string ParseEchoCommand(string message)
             var echoMessage = parts[3];
             return $"${echoMessage.Length}\r\n{echoMessage}\r\n"; // Forming the response as a bulk string
         }
+        else if (commandName.Equals("PING", StringComparison.OrdinalIgnoreCase))
+        {
+            return "+PONG\r\n";
+        }
     }
 
     return "-ERR Invalid Command\r\n"; // Redis-style error response
