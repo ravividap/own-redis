@@ -7,7 +7,7 @@ using System.Text.Json;
 Console.WriteLine("Logs from your program will appear here!");
 
 // Uncomment this block to pass the first stage
-TcpListener server = new TcpListener(IPAddress.Any, 6379);
+TcpListener server = new TcpListener(IPAddress.Any, 6378);
 server.Start();
 
 while (true)
@@ -81,7 +81,7 @@ string ParseEchoCommand(string message, Dictionary<string, string> data)
         }
         else if (commandName.Equals("SET", StringComparison.OrdinalIgnoreCase))
         {
-            data.Add(parts[3], parts[4]);
+            data.Add(parts[4], parts[6]);
             return $"+OK\r\n";
         }
         else if (commandName.Equals("GET", StringComparison.OrdinalIgnoreCase))
