@@ -7,7 +7,7 @@ using System.Text.Json;
 Console.WriteLine("Logs from your program will appear here!");
 
 // Uncomment this block to pass the first stage
-TcpListener server = new TcpListener(IPAddress.Any, 6379);
+TcpListener server = new TcpListener(IPAddress.Any, 6378);
 server.Start();
 
 while (true)
@@ -36,7 +36,7 @@ async Task HandleClientSocketAsync(Socket client)
                 var receivedMessage = Encoding.UTF8.GetString(buffer, 0, bytesRead).Trim();
                 string response = ParseEchoCommand(receivedMessage);
 
-                await client.SendAsync(Encoding.UTF8.GetBytes(response + "\r\n"), SocketFlags.None);
+                await client.SendAsync(Encoding.UTF8.GetBytes(response), SocketFlags.None);
 
             }
             else
@@ -63,7 +63,7 @@ string ParseEchoCommand(string message)
     // Splitting based on Redis RESP line endings
     var parts = message.Split("\r\n", StringSplitOptions.RemoveEmptyEntries);
 
-    if (parts.Length > 4 && parts[0] == "*2" && parts[1].StartsWith("$"))
+    if (parts.Length > 2 && parts[0] == "*2" && parts[1].StartsWith("$"))
     {
         string commandName = parts[2];
 
