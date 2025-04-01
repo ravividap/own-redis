@@ -57,15 +57,21 @@ async Task HandleClientSocketAsync(Socket client)
 
 string ParseEchoCommand(string message)
 {
-    try
+    if (string.IsNullOrWhiteSpace(message))
+        return "-ERR Invalid Command\r\n";
+
+    // Parsing the RESP format
+    var parts = message.Split(["\r\n"], StringSplitOptions.RemoveEmptyEntries);
+
+    if (parts.Length >= 2 && parts[0] == "*2" && parts[1].StartsWith("$"))
     {
-        string[]? command = JsonSerializer.Deserialize<string[]>(message);
-        if (command != null && command.Length >= 2 && command[0].Equals("ECHO", StringComparison.OrdinalIgnoreCase))
+        var commandName = parts[2];
+        if (commandName.Equals("ECHO", StringComparison.OrdinalIgnoreCase) && parts.Length > 3)
         {
-            return command[1]; // Return whatever follows "ECHO"
+            var echoMessage = parts[3];
+            return $"${echoMessage.Length}\r\n{echoMessage}\r\n"; // Forming the response as a bulk string
         }
     }
-    catch (JsonException) { }
 
-    return "-ERR Invalid Command"; // Redis-style error response
+    return "-ERR Invalid Command\r\n"; // Redis-style error response
 }
