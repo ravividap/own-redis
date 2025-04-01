@@ -12,4 +12,4 @@ server.AcceptSocket(); // wait for client
 
 var client = server.AcceptSocket();
 
-await client.SendAsync(Encoding.UTF8.GetBytes("+PONG\r\n"), SocketFlags.None);
+client.Send(Encoding.UTF8.GetBytes("+PONG\r\n"), SocketFlags.None);
