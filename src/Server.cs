@@ -107,3 +107,10 @@ string ParseEchoCommand(string message, Dictionary<string, Value> data)
 
     return "-ERR Invalid Command\r\n"; // Redis-style error response
 }
+
+public class Value
+{
+    public string? Data { get; set; }
+
+    public DateTime? Expiry { get; set; }
+}
