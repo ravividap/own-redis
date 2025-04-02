@@ -1,8 +1,6 @@
-using codecrafters_redis.src;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
-using System.Text.Json;
 
 // You can use print statements as follows for debugging, they'll be visible when running tests.
 Console.WriteLine("Logs from your program will appear here!");
