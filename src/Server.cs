@@ -79,9 +79,9 @@ string ParseEchoCommand(string message, Dictionary<string, Value> data)
         }
         else if (commandName.Equals("SET", StringComparison.OrdinalIgnoreCase))
         {
-            if (parts.Length > 8 && parts[7].Equals("px", StringComparison.OrdinalIgnoreCase))
+            if (parts.Length > 8 && parts[8].Equals("px", StringComparison.OrdinalIgnoreCase))
             {
-                int expiryMilliSeconds = int.Parse(parts[8]);
+                int expiryMilliSeconds = int.Parse(parts[10]);
                 data.Add(parts[4], new Value { Data = parts[6], Expiry = DateTime.UtcNow.AddMicroseconds(expiryMilliSeconds) });
             }
             else
