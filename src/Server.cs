@@ -1,3 +1,4 @@
+using codecrafters_redis.src;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
@@ -23,8 +24,7 @@ while (true)
 async Task HandleClientSocketAsync(Socket client)
 {
     byte[] buffer = new byte[1024];
-
-    Dictionary<string, string> data = new Dictionary<string, string>();
+    Dictionary<string, Value> data = new Dictionary<string, Value>();
 
     try
     {
@@ -57,7 +57,7 @@ async Task HandleClientSocketAsync(Socket client)
 
 }
 
-string ParseEchoCommand(string message, Dictionary<string, string> data)
+string ParseEchoCommand(string message, Dictionary<string, Value> data)
 {
     if (string.IsNullOrWhiteSpace(message))
         return "-ERR Invalid Command\r\n";
@@ -81,7 +81,16 @@ string ParseEchoCommand(string message, Dictionary<string, string> data)
         }
         else if (commandName.Equals("SET", StringComparison.OrdinalIgnoreCase))
         {
-            data.Add(parts[4], parts[6]);
+            if (parts.Length > 8 && parts[7].Equals("px", StringComparison.OrdinalIgnoreCase))
+            {
+                int expiryMilliSeconds = int.Parse(parts[8]);
+                data.Add(parts[4], new Value { Data = parts[6], Expiry = DateTime.UtcNow.AddMicroseconds(expiryMilliSeconds) });
+            }
+            else
+            {
+                data.Add(parts[4], new Value { Data = parts[6] });
+            }
+
             return $"+OK\r\n";
         }
         else if (commandName.Equals("GET", StringComparison.OrdinalIgnoreCase))
@@ -91,7 +100,10 @@ string ParseEchoCommand(string message, Dictionary<string, string> data)
                 return $"$-1\r\n";
 
             var value = data[key];
-            return $"${value.Length}\r\n{value}\r\n";
+            if (value.Expiry < DateTime.UtcNow)
+                return $"$-1\r\n";
+
+            return $"${value.Data.Length}\r\n{value.Data}\r\n";
         }
     }
 
