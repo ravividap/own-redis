@@ -5,9 +5,9 @@
         
         public string Execute(string[] commandParts)
         {
-            Console.WriteLine(commandParts[0]);
-            Console.WriteLine(commandParts[1]);
-            Console.WriteLine(commandParts[2]);
+            Console.WriteLine(commandParts[3]);
+            Console.WriteLine(commandParts[4]);
+            Console.WriteLine(commandParts[5]);
 
             if (commandParts[3] == "*")
             {
