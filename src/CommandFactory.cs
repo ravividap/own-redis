@@ -13,7 +13,8 @@
                 { "SET", new SetCommand(dataStore) },
                 { "GET", new GetCommand(dataStore) },
                 { "CONFIG", new ConfigCommand(config)},
-                { "KEYS", new KeysCommand(dataStore) }
+                { "KEYS", new KeysCommand(dataStore) },
+                { "INFO", new InfoCommand()}
             };
         }
 
