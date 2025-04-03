@@ -16,7 +16,7 @@
             if (!data.TryGetValue(key, out Value value))
                 return "$-1\r\n";
 
-            if (value.Expiry.HasValue && value.Expiry.Value < DateTime.UtcNow)
+            if (value.ExpiresAtDateTime.HasValue && value.ExpiresAtDateTime.Value < DateTime.Now.ToLocalTime())
             {
                 data.Remove(key); // Clean up expired key
                 return "$-1\r\n";

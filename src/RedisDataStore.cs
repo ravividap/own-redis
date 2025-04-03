@@ -68,65 +68,86 @@ namespace codecrafters_redis.src
 
         private int ParseDatabaseSection(byte[] data, int startIndex, Dictionary<string, Value> keyValuePairs)
         {
-            int index = startIndex + 1;
-            int length = data[index] + data[index + 1];
-            Console.WriteLine($"Database section detected. Key-value count: {length}");
-            index += 2;
-            if (data[index] != 0x00)
-            {
-                throw new InvalidOperationException("Non-string types are not supported yet.");
-            }
+            int index = startIndex + 1; // Skip the FE marker
+            int dbNumber = data[index]; // Get database number
+            Console.WriteLine($"Parsing database {dbNumber}");
             index++;
-            for (int i = 0; i < length; i++)
+
+            // Read key count and expired key count
+            int keyCount = data[index];
+            index++;
+            int expiredKeyCount = data[index];
+            index++;
+
+            Console.WriteLine($"Database contains {keyCount} keys, {expiredKeyCount} expired keys");
+
+            for (int i = 0; i < keyCount; i++)
             {
+                long? expiryTime = null;
+                DateTime? expiryDateTime = null;
+
+                // Check for expiry information
                 if (data[index] == 0xFC)
                 {
-                    Console.WriteLine("Skipping expiry information.");
-                    index += 10; // Skip FC + 8-byte unsigned long + 0x00
-                }
-
-                if (data[index] == 0xFD)
-                {
-                    Console.WriteLine("Skipping expiry information. Seconds information.");
-                    index += 6; // Skip FD + 4-byte unsigned int + 0x00
-                }
-
-                if (data[index] == 0x00)
-                {
+                    // Expiry in milliseconds
                     index++;
-                    Console.WriteLine("Skipping 0x00 byte.");
+                    expiryTime = BitConverter.ToInt64(data, index);
+                    expiryDateTime = DateTimeOffset.FromUnixTimeMilliseconds((long)expiryTime).DateTime.ToLocalTime();
+                    Console.WriteLine($"Found expiry information (milliseconds): {expiryDateTime}");
+                    index += 8;
                 }
+                else if (data[index] == 0xFD)
+                {
+                    // Expiry in seconds
+                    index++;
+                    int secondsExpiry = BitConverter.ToInt32(data, index);
+                    expiryTime = secondsExpiry;
+                    expiryDateTime = DateTimeOffset.FromUnixTimeSeconds(secondsExpiry).DateTime.ToLocalTime();
+                    Console.WriteLine($"Found expiry information (seconds): {expiryDateTime}");
+                    index += 4;
+                }
+
+                // Check value type
+                if (data[index] != 0x00)
+                {
+                    Console.WriteLine($"Unsupported value type: 0x{data[index]:X2}");
+                    throw new NotSupportedException($"Only string values are supported. Found type 0x{data[index]:X2}");
+                }
+                index++; // Skip the value type byte
 
                 // Parse key
                 int keyLength = data[index];
-                Console.WriteLine($"Key length: {keyLength}");
                 index++;
-                string key = ParseString(data, ref index, keyLength);
-                Console.WriteLine($"Parsed key: {key}");
-                
+                string key = Encoding.UTF8.GetString(data, index, keyLength);
+                index += keyLength;
+
                 // Parse value
                 int valueLength = data[index];
                 index++;
-                string value = ParseString(data, ref index, valueLength);
-                Console.WriteLine($"Parsed value: {value}");
+                string value = Encoding.UTF8.GetString(data, index, valueLength);
+                index += valueLength;
 
+                Console.WriteLine($"Parsed key: '{key}', value: '{value}'" +
+                                 (expiryTime.HasValue ? $", expires: {expiryDateTime}" : ""));
 
-                if (key.Length == 0)
+                // Store in dictionary
+                var valueObj = new Value
                 {
-                    Console.WriteLine("Empty key found. Skipping.");
-                    continue;
-                }
+                    Data = value,
+                    ExpireAt = expiryTime,
+                    ExpiresAtDateTime = expiryDateTime
+                };
+
                 if (keyValuePairs.ContainsKey(key))
                 {
-                    keyValuePairs[key] = new Value { Data = value };
-                    Console.WriteLine($"Key-Value pair updated: {key} => {value}");
-                    continue;
+                    keyValuePairs[key] = valueObj;
                 }
-
-
-                keyValuePairs.Add(key, new Value { Data = value });
-                Console.WriteLine($"Key-Value pair added: {key} => {value}");
+                else
+                {
+                    keyValuePairs.Add(key, valueObj);
+                }
             }
+
             return index;
         }
 
