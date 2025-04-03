@@ -5,11 +5,9 @@
         
         public string Execute(string[] commandParts)
         {
-            Console.WriteLine(commandParts[3]);
             Console.WriteLine(commandParts[4]);
-            Console.WriteLine(commandParts[5]);
 
-            if (commandParts[3] == "*")
+            if (commandParts[4] == "*")
             {
                 return BuildArrayString(dataStore.GetData().Keys.ToArray());
             }
