@@ -84,6 +84,19 @@ namespace codecrafters_redis.src
                     Console.WriteLine("Skipping expiry information.");
                     index += 10; // Skip FC + 8-byte unsigned long + 0x00
                 }
+
+                if (data[index] == 0xFD)
+                {
+                    Console.WriteLine("Skipping expiry information. Seconds information.");
+                    index += 6; // Skip FD + 4-byte unsigned int + 0x00
+                }
+
+                if (data[index] == 0x00)
+                {
+                    index++;
+                    Console.WriteLine("Skipping 0x00 byte.");
+                }
+
                 // Parse key
                 int keyLength = data[index];
                 Console.WriteLine($"Key length: {keyLength}");
@@ -96,6 +109,20 @@ namespace codecrafters_redis.src
                 index++;
                 string value = ParseString(data, ref index, valueLength);
                 Console.WriteLine($"Parsed value: {value}");
+
+
+                if (key.Length == 0)
+                {
+                    Console.WriteLine("Empty key found. Skipping.");
+                    continue;
+                }
+                if (keyValuePairs.ContainsKey(key))
+                {
+                    keyValuePairs[key] = new Value { Data = value };
+                    Console.WriteLine($"Key-Value pair updated: {key} => {value}");
+                    continue;
+                }
+
                 keyValuePairs.Add(key, new Value { Data = value });
                 Console.WriteLine($"Key-Value pair added: {key} => {value}");
             }
