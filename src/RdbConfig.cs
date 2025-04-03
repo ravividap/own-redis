@@ -8,6 +8,9 @@
 
         public string GetRdbFilePath()
         {
+            if (string.IsNullOrWhiteSpace(Directory) || string.IsNullOrWhiteSpace(FileName))
+                return string.Empty;
+
             return System.IO.Path.Combine(Directory, FileName);
         }
     }
