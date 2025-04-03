@@ -10,13 +10,15 @@ namespace codecrafters_redis.src
         private readonly RedisCommandProcessor _commandProcessor;
         private readonly int _bufferSize;
         private bool _isRunning;
+        private readonly RdbConfig _rdbConfig;
 
-        public RedisServer(int port, int bufferSize = 1024)
+        public RedisServer(int port, RdbConfig config, int bufferSize = 1024)
         {
             _server = new TcpListener(IPAddress.Any, port);
             _commandProcessor = new RedisCommandProcessor();
             _bufferSize = bufferSize;
             _isRunning = false;
+            _rdbConfig = config;
         }
 
         public async Task StartAsync()

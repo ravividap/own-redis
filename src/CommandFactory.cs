@@ -11,7 +11,8 @@
                 { "ECHO", new EchoCommand() },
                 { "PING", new PingCommand() },
                 { "SET", new SetCommand() },
-                { "GET", new GetCommand() }
+                { "GET", new GetCommand() },
+                { "CONFIG", new ConfigCommand()}
             };
         }
 
