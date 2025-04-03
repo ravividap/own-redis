@@ -6,7 +6,7 @@
         {
             Console.WriteLine("Logs from your program will appear here!");
 
-            const int port = 6379; // Default Redis port
+            const int port = 6378; // Default Redis port
             var config = new RdbConfig();
             if (args.Length > 0)
             {
@@ -21,11 +21,8 @@
             }
 
 
-            Console.WriteLine(config.FileName);
-            Console.WriteLine(config.Directory);
             var server = new RedisServer(port, config);
 
-            Console.Read();
             await server.StartAsync();
         }
     }
