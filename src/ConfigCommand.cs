@@ -10,7 +10,7 @@ namespace codecrafters_redis.src
             if (commandParts.Length < 6)
                 return "-ERR Wrong number of arguments for CONFIG GET\r\n";
 
-            string paramName = commandParts[4];
+            string paramName = commandParts[6];
 
             // Handle multiple parameters case (though test will only send one at a time)
             if (paramName.Equals("dir", StringComparison.OrdinalIgnoreCase))
