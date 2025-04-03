@@ -8,6 +8,8 @@
 
             int port = 6379; // Default Redis port
             var config = new RdbConfig();
+            bool isSlave = false;
+
             if (args.Length > 0)
             {
                 for (int i = 0; i < args.Length; i++)
@@ -24,12 +26,17 @@
                     {
                         port = Convert.ToInt32(args[i + 1]);
                     }
+
+                    if (args[i].Equals("--replicaof", StringComparison.OrdinalIgnoreCase))
+                    {
+                        isSlave = true;
+                    }
                 }
 
             }
 
 
-            var server = new RedisServer(port, config);
+            var server = new RedisServer(port, config, isSlave);
 
             await server.StartAsync();
         }

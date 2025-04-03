@@ -4,7 +4,7 @@
     {
         private readonly Dictionary<string, IRedisCommand> _commands;
 
-        public CommandFactory(IDataStore dataStore, RdbConfig config)
+        public CommandFactory(IDataStore dataStore, RdbConfig config, bool isSlave)
         {
             _commands = new Dictionary<string, IRedisCommand>(StringComparer.OrdinalIgnoreCase)
             {
@@ -14,7 +14,7 @@
                 { "GET", new GetCommand(dataStore) },
                 { "CONFIG", new ConfigCommand(config)},
                 { "KEYS", new KeysCommand(dataStore) },
-                { "INFO", new InfoCommand()}
+                { "INFO", new InfoCommand(isSlave)}
             };
         }
 

@@ -3,10 +3,10 @@
     public class RedisCommandProcessor
     {
         private readonly CommandFactory _commandFactory;
-        public RedisCommandProcessor(RdbConfig config)
+        public RedisCommandProcessor(RdbConfig config, bool isSlave)
         {
             var dataStore = new RedisDataStore(config);
-            _commandFactory = new CommandFactory(dataStore, config);
+            _commandFactory = new CommandFactory(dataStore, config, isSlave);
         }
 
         public string ProcessCommand(string message)
