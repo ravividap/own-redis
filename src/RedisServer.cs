@@ -15,7 +15,7 @@ namespace codecrafters_redis.src
         public RedisServer(int port, RdbConfig config, int bufferSize = 1024)
         {
             _server = new TcpListener(IPAddress.Any, port);
-            _commandProcessor = new RedisCommandProcessor();
+            _commandProcessor = new RedisCommandProcessor(config);
             _bufferSize = bufferSize;
             _isRunning = false;
             _rdbConfig = config;
