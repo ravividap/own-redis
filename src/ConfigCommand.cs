@@ -4,8 +4,14 @@ namespace codecrafters_redis.src
 {
     public class ConfigCommand : IRedisCommand
     {
-        public RdbConfig Config { get; set; }
-        public string Execute(Dictionary<string, Value> dataStore, string[] commandParts, RdbConfig config)
+        private readonly RdbConfig config;
+
+        public ConfigCommand(RdbConfig config)
+        {
+            this.config = config;
+        }
+
+        public string Execute(string[] commandParts)
         {
             if (commandParts.Length < 6)
                 return "-ERR Wrong number of arguments for CONFIG GET\r\n";

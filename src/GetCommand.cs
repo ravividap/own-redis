@@ -2,7 +2,13 @@
 {
     public class GetCommand : IRedisCommand
     {
-        public string Execute(Dictionary<string, Value> dataStore, string[] commandParts, RdbConfig config)
+        private readonly Dictionary<string, Value> dataStore;
+        public GetCommand(Dictionary<string, Value> dataStore)
+        {
+            this.dataStore = dataStore;   
+        }
+
+        public string Execute(string[] commandParts)
         {
             string key = commandParts[4];
 

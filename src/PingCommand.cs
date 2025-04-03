@@ -2,7 +2,7 @@
 {
     public class PingCommand : IRedisCommand
     {
-        public string Execute(Dictionary<string, Value> dataStore, string[] commandParts, RdbConfig config)
+        public string Execute(string[] commandParts)
         {
             return "+PONG\r\n";
         }

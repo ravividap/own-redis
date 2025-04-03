@@ -2,7 +2,7 @@
 {
     public interface IRedisCommand
     {
-        string Execute(Dictionary<string, Value> dataStore, string[] commandParts, RdbConfig config);
+        string Execute(string[] commandParts);
     }
 
 }

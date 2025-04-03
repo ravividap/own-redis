@@ -3,13 +3,10 @@
     public class RedisCommandProcessor
     {
         private readonly CommandFactory _commandFactory;
-        private readonly RedisDataStore _dataStore;
-        private readonly RdbConfig _config;
         public RedisCommandProcessor(RdbConfig config)
         {
-            _commandFactory = new CommandFactory();
-            _dataStore = new RedisDataStore();
-            _config = config;
+            var dataStore = new RedisDataStore().GetData();
+            _commandFactory = new CommandFactory(dataStore, config);
         }
 
         public string ProcessCommand(string message)
@@ -29,7 +26,7 @@
                 {
                     try
                     {
-                        return command.Execute(_dataStore.GetData(), parts, _config);
+                        return command.Execute(parts);
                     }
                     catch (Exception ex)
                     {
