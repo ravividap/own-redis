@@ -92,7 +92,6 @@ namespace codecrafters_redis.src
                 Console.WriteLine($"Parsed key: {key}");
                 // Parse value
                 int valueLength = data[index];
-                Console.WriteLine($"Value length: {valueLength}");
                 index++;
                 string value = ParseString(data, ref index, valueLength);
                 Console.WriteLine($"Parsed value: {value}");
