@@ -9,7 +9,7 @@
             Console.WriteLine(commandParts[1]);
             Console.WriteLine(commandParts[2]);
 
-            if (commandParts[0] == "*")
+            if (commandParts[3] == "*")
             {
                 return BuildArrayString(dataStore.GetData().Keys.ToArray());
             }
