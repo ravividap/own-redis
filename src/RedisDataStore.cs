@@ -72,10 +72,10 @@ namespace codecrafters_redis.src
             int length = data[index] + data[index + 1];
             Console.WriteLine($"Database section detected. Key-value count: {length}");
             index += 2;
-            if (data[index] != 0x00)
-            {
-                throw new InvalidOperationException("Non-string types are not supported yet.");
-            }
+            //if (data[index] != 0x00)
+            //{
+            //    throw new InvalidOperationException("Non-string types are not supported yet.");
+            //}
             index++;
             for (int i = 0; i < length; i++)
             {
