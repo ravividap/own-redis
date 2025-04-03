@@ -5,7 +5,7 @@
         private readonly CommandFactory _commandFactory;
         public RedisCommandProcessor(RdbConfig config)
         {
-            var dataStore = new RedisDataStore().GetData();
+            var dataStore = new RedisDataStore(config);
             _commandFactory = new CommandFactory(dataStore, config);
         }
 

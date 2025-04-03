@@ -4,7 +4,7 @@
     {
         private readonly Dictionary<string, IRedisCommand> _commands;
 
-        public CommandFactory(Dictionary<string, Value> dataStore, RdbConfig config)
+        public CommandFactory(IDataStore dataStore, RdbConfig config)
         {
             _commands = new Dictionary<string, IRedisCommand>(StringComparer.OrdinalIgnoreCase)
             {
@@ -12,7 +12,8 @@
                 { "PING", new PingCommand() },
                 { "SET", new SetCommand(dataStore) },
                 { "GET", new GetCommand(dataStore) },
-                { "CONFIG", new ConfigCommand(config)}
+                { "CONFIG", new ConfigCommand(config)},
+                { "KEYS", new KeysCommand(dataStore) }
             };
         }
 

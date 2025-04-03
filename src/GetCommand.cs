@@ -2,8 +2,8 @@
 {
     public class GetCommand : IRedisCommand
     {
-        private readonly Dictionary<string, Value> dataStore;
-        public GetCommand(Dictionary<string, Value> dataStore)
+        private readonly IDataStore dataStore;
+        public GetCommand(IDataStore dataStore)
         {
             this.dataStore = dataStore;   
         }
@@ -11,13 +11,14 @@
         public string Execute(string[] commandParts)
         {
             string key = commandParts[4];
+            var data = dataStore.GetData();
 
-            if (!dataStore.TryGetValue(key, out Value value))
+            if (!data.TryGetValue(key, out Value value))
                 return "$-1\r\n";
 
             if (value.Expiry.HasValue && value.Expiry.Value < DateTime.UtcNow)
             {
-                dataStore.Remove(key); // Clean up expired key
+                data.Remove(key); // Clean up expired key
                 return "$-1\r\n";
             }
 

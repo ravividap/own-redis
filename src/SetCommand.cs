@@ -2,9 +2,9 @@
 {
     public class SetCommand : IRedisCommand
     {
-        private readonly Dictionary<string, Value> dataStore;
+        private readonly IDataStore dataStore;
 
-        public SetCommand(Dictionary<string, Value> dataStore)
+        public SetCommand(IDataStore dataStore)
         {
             this.dataStore = dataStore;
         }
@@ -14,6 +14,8 @@
             string value = commandParts[6];
             DateTime? expiry = null;
 
+            var data = dataStore.GetData();
+
             // Check for expiry parameter
             if (commandParts.Length > 8 && commandParts[8].Equals("px", StringComparison.OrdinalIgnoreCase))
             {
@@ -22,13 +24,13 @@
             }
 
             // Use TryAdd with update logic to handle existing keys
-            if (dataStore.ContainsKey(key))
+            if (data.ContainsKey(key))
             {
-                dataStore[key] = new Value { Data = value, Expiry = expiry };
+                data[key] = new Value { Data = value, Expiry = expiry };
             }
             else
             {
-                dataStore.Add(key, new Value { Data = value, Expiry = expiry });
+                data.Add(key, new Value { Data = value, Expiry = expiry });
             }
 
             return "+OK\r\n";
