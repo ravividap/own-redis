@@ -1,5 +1,4 @@
 ﻿using System.Text;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace codecrafters_redis.src
 {
@@ -31,7 +30,7 @@ namespace codecrafters_redis.src
             {
                 byte[] byteData = File.ReadAllBytes(filePath);
                 Console.WriteLine($"File read successfully. Data (hex): {BitConverter.ToString(byteData)}");
-                _data = ParseRedisRdbData(byteData);
+                ParseRedisRdbData(byteData);
             }
             catch (Exception ex)
             {
@@ -40,9 +39,8 @@ namespace codecrafters_redis.src
             }
         }
 
-        private Dictionary<string, Value> ParseRedisRdbData(byte[] data)
+        private void ParseRedisRdbData(byte[] data)
         {
-            Dictionary<string, Value> keyValuePairs = new();
             int index = 0;
             try
             {
@@ -50,7 +48,14 @@ namespace codecrafters_redis.src
                 {
                     if (data[index] == 0xFB) // Start of database section
                     {
-                        index = ParseDatabaseSection(data, index, keyValuePairs);
+                        index = ParseDatabaseSection(data, index);
+
+                        if (data[index] == 0xFF)
+                        {
+                            Console.WriteLine("End of database section detected.");
+                            break;
+                        }
+
                     }
                     else
                     {
@@ -63,38 +68,45 @@ namespace codecrafters_redis.src
                 Console.WriteLine($"Error parsing RDB data: {ex.Message}");
                 throw;
             }
-            return keyValuePairs;
         }
 
-        private int ParseDatabaseSection(byte[] data, int startIndex, Dictionary<string, Value> keyValuePairs)
+        private int ParseDatabaseSection(byte[] data, int startIndex)
         {
             int index = startIndex + 1;
             int length = data[index] + data[index + 1];
             Console.WriteLine($"Database section detected. Key-value count: {length}");
             index += 2;
-            //if (data[index] != 0x00)
-            //{
-            //    throw new InvalidOperationException("Non-string types are not supported yet.");
-            //}
-            index++;
+
             for (int i = 0; i < length; i++)
             {
+                ulong expiryTimeStampFC = 0;
+                uint expiryTimeStampFD = 0;
+
                 if (data[index] == 0xFC)
                 {
-                    Console.WriteLine("Skipping expiry information.");
-                    index += 10; // Skip FC + 8-byte unsigned long + 0x00
+                    index++;
+                    expiryTimeStampFC = ExtractUInt64(data, ref index);
+
+                    Console.WriteLine($"Extracted expiry information.Milliseconds information.Timestamp:{expiryTimeStampFC}");
                 }
 
                 if (data[index] == 0xFD)
                 {
-                    Console.WriteLine("Skipping expiry information. Seconds information.");
-                    index += 6; // Skip FD + 4-byte unsigned int + 0x00
+                    index++;
+                    expiryTimeStampFD = ExtractUInt32(data, ref index);
+                    Console.WriteLine($"Extracted expiry information. Seconds information. Timestamp:{expiryTimeStampFD}");
                 }
 
                 if (data[index] == 0x00)
                 {
                     index++;
                     Console.WriteLine("Skipping 0x00 byte.");
+                }
+
+                if (data[index] == 0xFF)
+                {
+                    Console.WriteLine("End of database section detected.");
+                    break;
                 }
 
                 // Parse key
@@ -116,19 +128,74 @@ namespace codecrafters_redis.src
                     Console.WriteLine("Empty key found. Skipping.");
                     continue;
                 }
-                if (keyValuePairs.ContainsKey(key))
+                if (_data.ContainsKey(key))
                 {
-                    keyValuePairs[key] = new Value { Data = value };
+                    _data[key] = new Value { Data = value };
                     Console.WriteLine($"Key-Value pair updated: {key} => {value}");
                     continue;
                 }
 
 
-                keyValuePairs.Add(key, new Value { Data = value });
+                _data.Add(key, new Value { Data = value });
                 Console.WriteLine($"Key-Value pair added: {key} => {value}");
+
+                if (expiryTimeStampFC != 0)
+                {
+                    _ = HandleTimeStampExpiry((long)expiryTimeStampFC, key, false);
+                    expiryTimeStampFC = 0;
+                }
+                else if (expiryTimeStampFD != 0)
+                {
+                    _ = HandleTimeStampExpiry(expiryTimeStampFD, key, true);
+                    expiryTimeStampFD = 0;
+                }
             }
             return index;
         }
+
+        async Task HandleTimeStampExpiry(long unixTimeStamp, string key, bool isSeconds)
+        {
+            long currentUnixTime = isSeconds
+                ? DateTimeOffset.UtcNow.ToUnixTimeSeconds()
+                : DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+            
+            long delay = unixTimeStamp - currentUnixTime;
+            
+            Console.WriteLine($"key: {key} Delay: {delay} unixTimeStamp: {unixTimeStamp} Now: {currentUnixTime}");
+            
+            if (delay <= 0)
+            {
+                Console.WriteLine($"Expiry time has already passed. Removing key. Done: {_data.Remove(key)}");
+                return;
+            }
+
+            await Task.Delay((int)delay);
+            _data.Remove(key);
+        }
+
+        static ulong ExtractUInt64(byte[] data, ref int index)
+        {
+            if (index + 8 >= data.Length)
+            {
+                throw new ArgumentOutOfRangeException(
+                    nameof(index), "Index out of range for extracting UInt64.");
+            }
+            ulong value = BitConverter.ToUInt64(data, index);
+            index += 8;
+            return value;
+        }
+        static uint ExtractUInt32(byte[] data, ref int index)
+        {
+            if (index + 4 >= data.Length)
+            {
+                throw new ArgumentOutOfRangeException(
+                    nameof(index), "Index out of range for extracting UInt32.");
+            }
+            uint value = BitConverter.ToUInt32(data, index);
+            index += 4;
+            return value;
+        }
+
 
         private string ParseString(byte[] data, ref int index, int length)
         {
