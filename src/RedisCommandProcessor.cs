@@ -41,7 +41,7 @@ namespace codecrafters_redis.src
                 }
             }
 
-            await client.SendAsync(Encoding.UTF8.GetBytes("-ERR Invalid Command\r\n"), SocketFlags.None);
+            //await client.SendAsync(Encoding.UTF8.GetBytes("-ERR Invalid Command\r\n"), SocketFlags.None);
         }
     }
 }
