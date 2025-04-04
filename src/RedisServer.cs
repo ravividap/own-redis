@@ -63,6 +63,14 @@ namespace codecrafters_redis.src
             string request = "*1\r\n$4\r\nping\r\n";
             byte[] data = Encoding.ASCII.GetBytes(request);
             stream.Write(data, 0, data.Length);
+
+            request = "*3\r\n$8\r\nREPLCONF\r\n$14\r\nlistening-port\r\n$4\r\n6380\r\n";
+            data = Encoding.ASCII.GetBytes(request);
+            stream.Write(data, 0, data.Length);
+
+            request = "*3\r\n$8\r\nREPLCONF\r\n$4\r\ncapa\r\n$6\r\npsync2\r\n";
+            data = Encoding.ASCII.GetBytes(request);
+            stream.Write(data, 0, data.Length);
         }
 
         public void Stop()
