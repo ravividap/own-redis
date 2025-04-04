@@ -84,6 +84,14 @@ namespace codecrafters_redis.src
             bytesRead = stream.Read(data, 0, data.Length);
             responseData = Encoding.ASCII.GetString(data, 0, bytesRead);
             Console.WriteLine($"Response: {responseData}");
+
+            request = "*3\r\n$5\r\nPSYNC\r\n$1\r\n?\r\n$2\r\n-1\r\n";
+            data = Encoding.ASCII.GetBytes(request);
+            stream.Write(data, 0, data.Length);
+
+            bytesRead = stream.Read(data, 0, data.Length);
+            responseData = Encoding.ASCII.GetString(data, 0, bytesRead);
+            Console.WriteLine($"Response: {responseData}");
         }
 
         public void Stop()
