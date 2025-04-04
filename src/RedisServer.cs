@@ -64,13 +64,26 @@ namespace codecrafters_redis.src
             byte[] data = Encoding.ASCII.GetBytes(request);
             stream.Write(data, 0, data.Length);
 
+            data = new Byte[256];
+            var bytesRead = stream.Read(data, 0, data.Length);
+            var responseData = Encoding.ASCII.GetString(data, 0, bytesRead);
+            Console.WriteLine($"Response: {responseData}");
+
             request = "*3\r\n$8\r\nREPLCONF\r\n$14\r\nlistening-port\r\n$4\r\n6380\r\n";
             data = Encoding.ASCII.GetBytes(request);
             stream.Write(data, 0, data.Length);
 
+            bytesRead = stream.Read(data, 0, data.Length);
+            responseData = Encoding.ASCII.GetString(data, 0, bytesRead);
+            Console.WriteLine($"Response: {responseData}");
+
             request = "*3\r\n$8\r\nREPLCONF\r\n$4\r\ncapa\r\n$6\r\npsync2\r\n";
             data = Encoding.ASCII.GetBytes(request);
             stream.Write(data, 0, data.Length);
+
+            bytesRead = stream.Read(data, 0, data.Length);
+            responseData = Encoding.ASCII.GetString(data, 0, bytesRead);
+            Console.WriteLine($"Response: {responseData}");
         }
 
         public void Stop()
