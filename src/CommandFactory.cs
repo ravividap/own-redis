@@ -14,7 +14,8 @@
                 { "GET", new GetCommand(dataStore) },
                 { "CONFIG", new ConfigCommand(config)},
                 { "KEYS", new KeysCommand(dataStore) },
-                { "INFO", new InfoCommand(isSlave)}
+                { "INFO", new InfoCommand(isSlave)},
+                { "REPLCONF", new ReplConfigCommand()}
             };
         }
 
