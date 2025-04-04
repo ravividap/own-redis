@@ -23,16 +23,19 @@ namespace codecrafters_redis.src
                 response = "$-1\r\n";
             }
 
-            if (value.Expiry.HasValue && value.Expiry.Value < DateTime.UtcNow)
+            if (value != null)
             {
-                data.Remove(key); // Clean up expired key
-                response = "$-1\r\n";
+                if (value.Expiry.HasValue && value.Expiry.Value < DateTime.UtcNow)
+                {
+                    data.Remove(key); // Clean up expired key
+                    response = "$-1\r\n";
+                }
+                else
+                {
+                    response = $"${value.Data.Length}\r\n{value.Data}\r\n";
+                }
             }
-            else
-            {
-                response = $"${value.Data.Length}\r\n{value.Data}\r\n";
-
-            }
+            
 
             await client.SendAsync(Encoding.UTF8.GetBytes(response), SocketFlags.None);
         }
