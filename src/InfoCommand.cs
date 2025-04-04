@@ -14,15 +14,19 @@ namespace codecrafters_redis.src
             info.Add("master_repl_offset", "0");
 
             StringBuilder sb = new StringBuilder();
-            sb.Append($"*{info.Count}\r\n");
 
             foreach (var kv in info)
             {
                 var kvString = $"{kv.Key}:{kv.Value}";
-                sb.Append($"${kvString.Length}\r\n{kvString}\r\n");
+                sb.AppendLine(kvString);
             }
 
-            return sb.ToString();
+            return BuildBulkString(sb.ToString());
+        }
+
+        private string BuildBulkString(string value)
+        {
+            return $"${value.Length}\r\n{value}\r\n";
         }
     }
 }
