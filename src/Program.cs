@@ -31,8 +31,8 @@
 
                     if (args[i].Equals("--replicaof", StringComparison.OrdinalIgnoreCase))
                     {
-                        masterHost = args[i + 1].Split(":")[0];
-                        masterPort = args[i + 1].Split(":")[1];
+                        masterHost = args[i + 1].Split(" ")[0];
+                        masterPort = args[i + 1].Split(" ")[1];
                         isSlave = true;
                     }
                 }
