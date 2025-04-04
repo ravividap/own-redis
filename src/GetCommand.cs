@@ -16,17 +16,25 @@ namespace codecrafters_redis.src
             string key = commandParts[4];
             var data = dataStore.GetData();
 
-            if (!data.TryGetValue(key, out Value value))
-                await client.SendAsync(Encoding.UTF8.GetBytes("$-1\r\n"), SocketFlags.None);
+            var response = "$-1\r\n";
 
+            if (!data.TryGetValue(key, out Value value))
+            {
+                response = "$-1\r\n";
+            }
 
             if (value.Expiry.HasValue && value.Expiry.Value < DateTime.UtcNow)
             {
                 data.Remove(key); // Clean up expired key
-                await client.SendAsync(Encoding.UTF8.GetBytes("$-1\r\n"), SocketFlags.None);
+                response = "$-1\r\n";
+            }
+            else
+            {
+                response = $"${value.Data.Length}\r\n{value.Data}\r\n";
+
             }
 
-            await client.SendAsync(Encoding.UTF8.GetBytes($"${value.Data.Length}\r\n{value.Data}\r\n"), SocketFlags.None);
+            await client.SendAsync(Encoding.UTF8.GetBytes(response), SocketFlags.None);
         }
     }
 }

@@ -8,14 +8,19 @@ namespace codecrafters_redis.src
         
         public async Task ExecuteAsync(Socket client, string[] commandParts)
         {
-            Console.WriteLine(commandParts[4]);
+            var response = string.Empty;
 
             if (commandParts[4] == "*")
             {
-                await client.SendAsync(Encoding.UTF8.GetBytes(BuildArrayString(dataStore.GetData().Keys.ToArray())), SocketFlags.None);
+                response = BuildArrayString(dataStore.GetData().Keys.ToArray());
+            }
+            else
+            {
+                response = "$-1\r\n";
             }
 
-            await client.SendAsync(Encoding.UTF8.GetBytes("$-1\r\n"), SocketFlags.None);
+            await client.SendAsync(Encoding.UTF8.GetBytes(response), SocketFlags.None);
+
         }
 
         private string BuildArrayString(string[] args)
