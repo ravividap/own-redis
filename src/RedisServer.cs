@@ -23,7 +23,7 @@ namespace codecrafters_redis.src
             rdbConfig = config;
             this.isSlave = isSlave;
             this.masterHost = masterHost;
-            this.masterPort = Convert.ToInt32(masterPort);
+            this.masterPort = !string.IsNullOrEmpty(masterPort) ? Convert.ToInt32(masterPort) : 0;
             
         }
 
