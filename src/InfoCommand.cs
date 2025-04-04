@@ -1,10 +1,11 @@
-﻿using System.Text;
+﻿using System.Net.Sockets;
+using System.Text;
 
 namespace codecrafters_redis.src
 {
     public class InfoCommand(bool isSlave) : IRedisCommand
     {
-        public string Execute(string[] commandParts)
+        public async Task ExecuteAsync(Socket client, string[] commandParts)
         {
             var role = isSlave ? "slave" : "master";
             var info = new Dictionary<string, string>();
@@ -21,7 +22,7 @@ namespace codecrafters_redis.src
                 sb.AppendLine(kvString);
             }
 
-            return BuildBulkString(sb.ToString());
+            await client.SendAsync(Encoding.UTF8.GetBytes(BuildBulkString(sb.ToString())), SocketFlags.None);
         }
 
         private string BuildBulkString(string value)

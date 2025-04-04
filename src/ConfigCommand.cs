@@ -1,4 +1,5 @@
-﻿
+﻿using System.Net.Sockets;
+using System.Text;
 
 namespace codecrafters_redis.src
 {
@@ -11,26 +12,26 @@ namespace codecrafters_redis.src
             this.config = config;
         }
 
-        public string Execute(string[] commandParts)
+        public async Task ExecuteAsync(Socket client, string[] commandParts)
         {
             if (commandParts.Length < 6)
-                return "-ERR Wrong number of arguments for CONFIG GET\r\n";
+                await client.SendAsync(Encoding.UTF8.GetBytes($"-ERR Wrong number of arguments for CONFIG GET\r\n"), SocketFlags.None);
 
             string paramName = commandParts[6];
 
             // Handle multiple parameters case (though test will only send one at a time)
             if (paramName.Equals("dir", StringComparison.OrdinalIgnoreCase))
             {
-                return FormatConfigResponse("dir", config.Directory);
+                await client.SendAsync(Encoding.UTF8.GetBytes(FormatConfigResponse("dir", config.Directory)), SocketFlags.None);
             }
             else if (paramName.Equals("dbfilename", StringComparison.OrdinalIgnoreCase))
             {
-                return FormatConfigResponse("dbfilename", config.FileName);
+                await client.SendAsync(Encoding.UTF8.GetBytes(FormatConfigResponse("dbfilename", config.FileName)), SocketFlags.None);
             }
             else
             {
                 // If parameter is not found, return an empty array
-                return "*0\r\n";
+                await client.SendAsync(Encoding.UTF8.GetBytes("*0\r\n"), SocketFlags.None);
             }
         }
 

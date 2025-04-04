@@ -1,10 +1,13 @@
-﻿namespace codecrafters_redis.src
+﻿using System.Net.Sockets;
+using System.Text;
+
+namespace codecrafters_redis.src
 {
     public class PingCommand : IRedisCommand
     {
-        public string Execute(string[] commandParts)
+        public async Task ExecuteAsync(Socket client, string[] commandParts)
         {
-            return "+PONG\r\n";
+            await client.SendAsync(Encoding.UTF8.GetBytes("+PONG\r\n"), SocketFlags.None);
         }
     }
 }

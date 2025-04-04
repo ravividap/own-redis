@@ -1,4 +1,7 @@
-﻿namespace codecrafters_redis.src
+﻿using System.Net.Sockets;
+using System.Text;
+
+namespace codecrafters_redis.src
 {
     public class RedisCommandProcessor
     {
@@ -9,10 +12,12 @@
             _commandFactory = new CommandFactory(dataStore, config, isSlave);
         }
 
-        public string ProcessCommand(string message)
+        public async Task ProcessCommand(Socket client, string message)
         {
             if (string.IsNullOrWhiteSpace(message))
-                return "-ERR Invalid Command\r\n";
+            {
+                await client.SendAsync(Encoding.UTF8.GetBytes("-ERR Invalid Command\r\n"), SocketFlags.None);
+            }
 
             // Splitting based on Redis RESP line endings
             string[] parts = message.Split("\r\n", StringSplitOptions.RemoveEmptyEntries);
@@ -26,17 +31,17 @@
                 {
                     try
                     {
-                        return command.Execute(parts);
+                        await command.ExecuteAsync(client, parts);
                     }
                     catch (Exception ex)
                     {
                         Console.WriteLine($"Command execution error: {ex.Message}");
-                        return $"-ERR {ex.Message}\r\n";
+                        await client.SendAsync(Encoding.UTF8.GetBytes($"-ERR {ex.Message}\r\n"), SocketFlags.None);
                     }
                 }
             }
 
-            return "-ERR Invalid Command\r\n";
+            await client.SendAsync(Encoding.UTF8.GetBytes("-ERR Invalid Command\r\n"), SocketFlags.None);
         }
     }
 }

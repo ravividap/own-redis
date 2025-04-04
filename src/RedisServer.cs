@@ -115,9 +115,7 @@ namespace codecrafters_redis.src
                         break;
 
                     var receivedMessage = Encoding.UTF8.GetString(buffer, 0, bytesRead).Trim();
-                    string response = commandProcessor.ProcessCommand(receivedMessage);
-
-                    await clientSocket.SendAsync(Encoding.UTF8.GetBytes(response), SocketFlags.None);
+                    await commandProcessor.ProcessCommand(clientSocket, receivedMessage);
                 }
             }
             catch (SocketException ex)

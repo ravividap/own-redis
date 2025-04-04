@@ -1,8 +1,10 @@
-﻿namespace codecrafters_redis.src
+﻿using System.Net.Sockets;
+
+namespace codecrafters_redis.src
 {
     public interface IRedisCommand
     {
-        string Execute(string[] commandParts);
+        Task ExecuteAsync(Socket client, string[] commandParts);
     }
 
 }

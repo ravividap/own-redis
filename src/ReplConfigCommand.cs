@@ -1,10 +1,13 @@
-﻿namespace codecrafters_redis.src
+﻿using System.Net.Sockets;
+using System.Text;
+
+namespace codecrafters_redis.src
 {
     public class ReplConfigCommand : IRedisCommand
     {
-        public string Execute(string[] commandParts)
+        public async Task ExecuteAsync(Socket client, string[] commandParts)
         {
-            return "+OK\r\n";
+            await client.SendAsync(Encoding.UTF8.GetBytes("+OK\r\n"), SocketFlags.None);
         }
     }
 }

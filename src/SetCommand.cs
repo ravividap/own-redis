@@ -1,4 +1,7 @@
-﻿namespace codecrafters_redis.src
+﻿using System.Net.Sockets;
+using System.Text;
+
+namespace codecrafters_redis.src
 {
     public class SetCommand : IRedisCommand
     {
@@ -8,7 +11,7 @@
         {
             this.dataStore = dataStore;
         }
-        public string Execute(string[] commandParts)
+        public async Task ExecuteAsync(Socket client, string[] commandParts)
         {
             string key = commandParts[4];
             string value = commandParts[6];
@@ -33,7 +36,7 @@
                 data.Add(key, new Value { Data = value, Expiry = expiry });
             }
 
-            return "+OK\r\n";
+            await client.SendAsync(Encoding.UTF8.GetBytes("+OK\r\n"), SocketFlags.None);
         }
     }
 }

@@ -1,18 +1,21 @@
-﻿namespace codecrafters_redis.src
+﻿using System.Net.Sockets;
+using System.Text;
+
+namespace codecrafters_redis.src
 {
     public class KeysCommand(IDataStore dataStore) : IRedisCommand
     {
         
-        public string Execute(string[] commandParts)
+        public async Task ExecuteAsync(Socket client, string[] commandParts)
         {
             Console.WriteLine(commandParts[4]);
 
             if (commandParts[4] == "*")
             {
-                return BuildArrayString(dataStore.GetData().Keys.ToArray());
+                await client.SendAsync(Encoding.UTF8.GetBytes(BuildArrayString(dataStore.GetData().Keys.ToArray())), SocketFlags.None);
             }
 
-            return "$-1\r\n";
+            await client.SendAsync(Encoding.UTF8.GetBytes("$-1\r\n"), SocketFlags.None);
         }
 
         private string BuildArrayString(string[] args)
