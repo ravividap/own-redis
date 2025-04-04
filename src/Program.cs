@@ -9,6 +9,8 @@
             int port = 6379; // Default Redis port
             var config = new RdbConfig();
             bool isSlave = false;
+            string masterHost = "";
+            string masterPort = "";
 
             if (args.Length > 0)
             {
@@ -29,6 +31,8 @@
 
                     if (args[i].Equals("--replicaof", StringComparison.OrdinalIgnoreCase))
                     {
+                        masterHost = args[i + 1].Split(":")[0];
+                        masterPort = args[i + 1].Split(":")[1];
                         isSlave = true;
                     }
                 }
@@ -36,7 +40,7 @@
             }
 
 
-            var server = new RedisServer(port, config, isSlave);
+            var server = new RedisServer(port, config, isSlave, masterHost, masterPort);
 
             await server.StartAsync();
         }
