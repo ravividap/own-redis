@@ -1,24 +1,27 @@
-﻿using System.Text;
+﻿using System.Net.Sockets;
+using System.Text;
 
 namespace codecrafters_redis.src
 {
     // Repository Pattern for data access
     public class RedisDataStore : IDataStore
     {
-        private Dictionary<string, Value> _data = new Dictionary<string, Value>();
+        private Dictionary<string, Value> data = new Dictionary<string, Value>();
 
-        private readonly RdbConfig _config;
+        private Dictionary<int, Socket> replicas = new();
+
+        private readonly RdbConfig config;
 
         public RedisDataStore(RdbConfig config)
         {
-            _config = config;
+            this.config = config;
 
             LoadFromRdbFile();
         }
 
         private void LoadFromRdbFile()
         {
-            var filePath = _config.GetRdbFilePath();
+            var filePath = config.GetRdbFilePath();
 
             if (!File.Exists(filePath))
             {
@@ -128,15 +131,15 @@ namespace codecrafters_redis.src
                     Console.WriteLine("Empty key found. Skipping.");
                     continue;
                 }
-                if (_data.ContainsKey(key))
+                if (this.data.ContainsKey(key))
                 {
-                    _data[key] = new Value { Data = value };
+                    this.data[key] = new Value { Data = value };
                     Console.WriteLine($"Key-Value pair updated: {key} => {value}");
                     continue;
                 }
 
 
-                _data.Add(key, new Value { Data = value });
+                this.data.Add(key, new Value { Data = value });
                 Console.WriteLine($"Key-Value pair added: {key} => {value}");
 
                 if (expiryTimeStampFC != 0)
@@ -165,12 +168,12 @@ namespace codecrafters_redis.src
             
             if (delay <= 0)
             {
-                Console.WriteLine($"Expiry time has already passed. Removing key. Done: {_data.Remove(key)}");
+                Console.WriteLine($"Expiry time has already passed. Removing key. Done: {data.Remove(key)}");
                 return;
             }
 
             await Task.Delay((int)delay);
-            _data.Remove(key);
+            data.Remove(key);
         }
 
         static ulong ExtractUInt64(byte[] data, ref int index)
@@ -196,7 +199,6 @@ namespace codecrafters_redis.src
             return value;
         }
 
-
         private string ParseString(byte[] data, ref int index, int length)
         {
             string result = Encoding.Default.GetString(data.Skip(index).Take(length).ToArray());
@@ -206,12 +208,17 @@ namespace codecrafters_redis.src
 
         public Dictionary<string, Value> GetData()
         {
-            return _data;
+            return data;
         }
 
         public void SaveToRdbFile()
         {
             throw new NotImplementedException();
+        }
+
+        public Dictionary<int, Socket> GetReplicas()
+        {
+            return replicas;
         }
     }
 }

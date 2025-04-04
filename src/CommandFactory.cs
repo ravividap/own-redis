@@ -16,7 +16,7 @@
                 { "KEYS", new KeysCommand(dataStore) },
                 { "INFO", new InfoCommand(isSlave)},
                 { "REPLCONF", new ReplConfigCommand()},
-                { "PSYNC", new PsyncCommand("8371b4fb1155b71f4a04d3e1bc3e18c4a990aeeb", 0)}
+                { "PSYNC", new PsyncCommand(dataStore, "8371b4fb1155b71f4a04d3e1bc3e18c4a990aeeb", 0)}
             };
         }
 

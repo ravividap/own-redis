@@ -37,6 +37,16 @@ namespace codecrafters_redis.src
             }
 
             await client.SendAsync(Encoding.UTF8.GetBytes("+OK\r\n"), SocketFlags.None);
+
+            var replicas = dataStore.GetReplicas();
+
+            foreach (var replica in replicas)
+            {
+                var replicaSocket = replica.Value;
+                var command = $"*3\r\n$3\r\nSET\r\n${key.Length}\r\n{key}\r\n${value.Length}\r\n{value}\r\n";
+                
+                await replicaSocket.SendAsync(Encoding.UTF8.GetBytes(command));
+            }
         }
     }
 }
