@@ -99,7 +99,7 @@ namespace codecrafters_redis.src
 
             while (server.Connected)
             {
-                bytesRead = stream.Read(data, 0, 1024);
+                bytesRead = stream.Read(data);
 
                 if (bytesRead <= 0)
                     break;
