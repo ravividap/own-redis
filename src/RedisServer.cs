@@ -39,6 +39,10 @@ namespace codecrafters_redis.src
             {
                 PingMaster(masterHost, masterPort);
             }
+            else
+            {
+                Console.WriteLine("Master running");
+            }
 
             try
             {
