@@ -1,6 +1,7 @@
 ﻿using System.Net.Sockets;
 using System.Net;
 using System.Text;
+using System;
 
 namespace codecrafters_redis.src
 {
@@ -24,7 +25,7 @@ namespace codecrafters_redis.src
             this.isSlave = isSlave;
             this.masterHost = masterHost;
             this.masterPort = !string.IsNullOrEmpty(masterPort) ? Convert.ToInt32(masterPort) : 0;
-            
+
         }
 
         public async Task StartAsync()
@@ -37,12 +38,11 @@ namespace codecrafters_redis.src
 
             if (isSlave)
             {
-                PingMaster(masterHost, masterPort);
+                Task.Run(() => PingMaster(masterHost, masterPort));
             }
-            else
-            {
+
+            if (!isSlave)
                 Console.WriteLine("Master running");
-            }
 
             try
             {
@@ -60,15 +60,15 @@ namespace codecrafters_redis.src
             }
         }
 
-        private void PingMaster(string masterHost, int masterPort)
+        private async Task PingMaster(string masterHost, int masterPort)
         {
-            TcpClient tcpClient = new(masterHost, masterPort);
-            NetworkStream stream = tcpClient.GetStream();
+            TcpClient server = new(masterHost, masterPort);
+            NetworkStream stream = server.GetStream();
             string request = "*1\r\n$4\r\nping\r\n";
             byte[] data = Encoding.ASCII.GetBytes(request);
             stream.Write(data, 0, data.Length);
 
-            data = new Byte[256];
+            data = new Byte[bufferSize];
             var bytesRead = stream.Read(data, 0, data.Length);
             var responseData = Encoding.ASCII.GetString(data, 0, bytesRead);
             Console.WriteLine($"Response: {responseData}");
@@ -96,6 +96,21 @@ namespace codecrafters_redis.src
             bytesRead = stream.Read(data, 0, data.Length);
             responseData = Encoding.ASCII.GetString(data, 0, bytesRead);
             Console.WriteLine($"Response: {responseData}");
+
+            while (server.Connected)
+            {
+                bytesRead = stream.Read(data, 0, data.Length);
+
+                if (bytesRead <= 0)
+                    break;
+
+                responseData = Encoding.ASCII.GetString(data, 0, bytesRead).Trim();
+
+                Console.WriteLine($"slave recived : {responseData}");
+
+                _ = commandProcessor.ProcessCommand(server.Client, responseData);
+
+            }
         }
 
         public void Stop()
