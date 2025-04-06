@@ -41,6 +41,12 @@ namespace codecrafters_redis.src
             if (!isSlave)
                 await client.SendAsync(Encoding.UTF8.GetBytes("+OK\r\n"), SocketFlags.None);
 
+            if (isSlave)
+            {
+                var command = Encoding.UTF8.GetBytes($"*3\r\n$3\r\nSET\r\n${key.Length}\r\n{key}\r\n${value.Length}\r\n{value}\r\n");
+                dataStore.SetOffSet(command.Length);
+            }
+
             var replicas = dataStore.GetReplicas();
 
             Console.WriteLine($"Number of replicas: {replicas.Count}");

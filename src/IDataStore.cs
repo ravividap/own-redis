@@ -8,5 +8,9 @@ namespace codecrafters_redis.src
         void SaveToRdbFile();
 
         Dictionary<int, Socket> GetReplicas();
+
+        void SetOffSet(int offSet);
+
+        int GetOffSet();
     }
 }

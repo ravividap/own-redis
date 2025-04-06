@@ -12,9 +12,13 @@ namespace codecrafters_redis.src
 
         private readonly RdbConfig config;
 
+        private int offset { get; set; }
+
         public RedisDataStore(RdbConfig config)
         {
             this.config = config;
+
+            offset = 0;
 
             LoadFromRdbFile();
         }
@@ -219,6 +223,16 @@ namespace codecrafters_redis.src
         public Dictionary<int, Socket> GetReplicas()
         {
             return replicas;
+        }
+
+        public void SetOffSet(int offSet)
+        {
+            offset += offSet;
+        }
+
+        public int GetOffSet()
+        {
+            return offset;
         }
     }
 }
