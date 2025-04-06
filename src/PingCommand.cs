@@ -11,8 +11,10 @@ namespace codecrafters_redis.src
             {
                 dataStore.SetOffSet(14);
             }
-
-            await client.SendAsync(Encoding.UTF8.GetBytes("+PONG\r\n"), SocketFlags.None);
+            else
+            {
+                await client.SendAsync(Encoding.UTF8.GetBytes("+PONG\r\n"), SocketFlags.None);
+            }
         }
     }
 }
