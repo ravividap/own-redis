@@ -10,7 +10,7 @@
             {
                 { "ECHO", new EchoCommand() },
                 { "PING", new PingCommand() },
-                { "SET", new SetCommand(dataStore) },
+                { "SET", new SetCommand(dataStore, isSlave) },
                 { "GET", new GetCommand(dataStore) },
                 { "CONFIG", new ConfigCommand(config)},
                 { "KEYS", new KeysCommand(dataStore) },
