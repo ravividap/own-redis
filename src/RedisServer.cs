@@ -100,6 +100,7 @@ namespace codecrafters_redis.src
 
             var receivedSoFar = new StringBuilder();
 
+            var redisCommandParser = new RedisCommandParser();
             while (server.Connected)
             {
                 bytesRead = stream.Read(data, 0, data.Length);
@@ -109,8 +110,14 @@ namespace codecrafters_redis.src
 
                 var chunk = Encoding.ASCII.GetString(data, 0, bytesRead).Trim();
 
-                _ = commandProcessor.ProcessCommand(server.Client, chunk);
-
+                var commands = redisCommandParser.ProcessData(data, data.Length);
+                if (commands != null)
+                {
+                    foreach (var command in commands)
+                    {
+                        _ = commandProcessor.ProcessCommand(server.Client, redisCommandParser.ConvertListToResp(command));
+                    }
+                }
 
                 //receivedSoFar.Append(chunk);
 
