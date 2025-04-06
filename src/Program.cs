@@ -6,7 +6,7 @@
         {
             Console.WriteLine("Logs from your program will appear here!");
 
-            int port = 6378; // Default Redis port
+            int port = 6379; // Default Redis port
             var config = new RdbConfig();
             bool isSlave = false;
             string masterHost = "";
