@@ -2,6 +2,7 @@
 using System.Net;
 using System.Text;
 using System;
+using System.Collections.Generic;
 
 namespace codecrafters_redis.src
 {
@@ -108,17 +109,21 @@ namespace codecrafters_redis.src
 
                 var chunk = Encoding.ASCII.GetString(data, 0, bytesRead).Trim();
 
-                receivedSoFar.Append(chunk);
+                _ = commandProcessor.ProcessCommand(server.Client, chunk);
 
-                while (TryExtractFullRespMessage(receivedSoFar.ToString(), out var fullMessage, out var remaining))
-                {
-                    Console.WriteLine($"Slave received: {fullMessage}");
-                    _ = commandProcessor.ProcessCommand(server.Client, fullMessage);
 
-                    // Keep only the unprocessed remainder for next read
-                    receivedSoFar.Clear();
-                    receivedSoFar.Append(remaining);
-                }
+                //receivedSoFar.Append(chunk);
+
+
+                //while (TryExtractFullRespMessage(receivedSoFar.ToString(), out var fullMessage, out var remaining))
+                //{
+                //    Console.WriteLine($"Slave received: {fullMessage}");
+                //    _ = commandProcessor.ProcessCommand(server.Client, fullMessage);
+
+                //    // Keep only the unprocessed remainder for next read
+                //    receivedSoFar.Clear();
+                //    receivedSoFar.Append(remaining);
+                //}
             }
         }
 
@@ -130,6 +135,7 @@ namespace codecrafters_redis.src
             // Very naive RESP parser — works only for "*N\r\n$X\r\n...\r\n" structures
             if (!input.StartsWith("*")) return false;
 
+            // "*3\r\n$3\r\nSET\r\n" 
             var lines = input.Split("\r\n", StringSplitOptions.None).ToList();
 
             if (lines.Count < 3) return false; // not enough lines
