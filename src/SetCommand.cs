@@ -43,8 +43,11 @@ namespace codecrafters_redis.src
 
             var replicas = dataStore.GetReplicas();
 
+            Console.WriteLine($"Number of replicas: {replicas.Count}");
+
             foreach (var replica in replicas)
             {
+                Console.WriteLine($"Master sending set commands, key: {key}, value : {value}");
                 var replicaSocket = replica.Value;
                 var command = $"*3\r\n$3\r\nSET\r\n${key.Length}\r\n{key}\r\n${value.Length}\r\n{value}\r\n";
 
