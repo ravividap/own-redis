@@ -110,73 +110,19 @@ namespace codecrafters_redis.src
 
                 var chunk = Encoding.ASCII.GetString(data, 0, bytesRead).Trim();
 
-                var commands = redisCommandParser.ProcessData(data, data.Length);
-                if (commands != null)
+                if (chunk.StartsWith("*"))
                 {
-                    foreach (var command in commands)
+                    var commands = redisCommandParser.ProcessData(data, data.Length);
+                    if (commands != null)
                     {
-                        _ = commandProcessor.ProcessCommand(server.Client, redisCommandParser.ConvertListToResp(command));
+                        foreach (var command in commands)
+                        {
+                            _ = commandProcessor.ProcessCommand(server.Client, redisCommandParser.ConvertListToResp(command));
+                        }
                     }
                 }
-
-                //receivedSoFar.Append(chunk);
-
-
-                //while (TryExtractFullRespMessage(receivedSoFar.ToString(), out var fullMessage, out var remaining))
-                //{
-                //    Console.WriteLine($"Slave received: {fullMessage}");
-                //    _ = commandProcessor.ProcessCommand(server.Client, fullMessage);
-
-                //    // Keep only the unprocessed remainder for next read
-                //    receivedSoFar.Clear();
-                //    receivedSoFar.Append(remaining);
-                //}
             }
         }
-
-        bool TryExtractFullRespMessage(string input, out string fullMessage, out string remaining)
-        {
-            fullMessage = string.Empty;
-            remaining = input;
-
-            // Very naive RESP parser — works only for "*N\r\n$X\r\n...\r\n" structures
-            if (!input.StartsWith("*")) return false;
-
-            // "*3\r\n$3\r\nSET\r\n" 
-            var lines = input.Split("\r\n", StringSplitOptions.None).ToList();
-
-            if (lines.Count < 3) return false; // not enough lines
-
-            if (!int.TryParse(lines[0].Substring(1), out int arrayCount))
-                return false;
-
-            int index = 1;
-            int requiredLines = 1; // counting the *N line
-
-            for (int i = 0; i < arrayCount; i++)
-            {
-                if (index + 1 >= lines.Count) return false;
-
-                if (!lines[index].StartsWith("$")) return false;
-
-                if (!int.TryParse(lines[index].Substring(1), out int len)) return false;
-
-                index += 2;
-                requiredLines += 2;
-            }
-
-            if (lines.Count >= requiredLines)
-            {
-                // Join only the full message
-                fullMessage = string.Join("\r\n", lines.Take(requiredLines)) + "\r\n";
-                remaining = string.Join("\r\n", lines.Skip(requiredLines));
-
-                return true;
-            }
-
-            return false;
-        }
-
 
         public void Stop()
         {

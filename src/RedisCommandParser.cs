@@ -62,7 +62,7 @@ namespace codecrafters_redis.src
             // Check buffer starts with '*' (array)
             if (_buffer[_bufferPos] != '*')
             {
-                throw new FormatException($"Expected array marker '*', got '{(char)_buffer[_bufferPos]}' at position {_bufferPos}");
+                return null;
             }
             _bufferPos++;
 
