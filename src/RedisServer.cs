@@ -97,6 +97,15 @@ namespace codecrafters_redis.src
             responseData = Encoding.ASCII.GetString(data, 0, bytesRead);
             Console.WriteLine($"Response: {responseData}");
 
+            request = "*3\r\n$8\r\nREPLCONF\r\n$3\r\nACK\r\n$1\r\n0\r\n";
+            data = Encoding.ASCII.GetBytes(request);
+            stream.Write(data, 0, data.Length);
+
+            bytesRead = stream.Read(data, 0, data.Length);
+            responseData = Encoding.ASCII.GetString(data, 0, bytesRead);
+            Console.WriteLine($"Response: {responseData}");
+
+
             var receivedSoFar = new StringBuilder();
 
             while (server.Connected)
