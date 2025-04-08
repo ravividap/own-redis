@@ -11,8 +11,9 @@ namespace codecrafters_redis.src
 
             var offSet1 = dataStore.GetOffSet().ToString();
             dataStore.SetOffSet(37);
+            var response = $"*3\r\n$8\r\nREPLCONF\r\n$3\r\nACK\r\n${offSet1.Length}\r\n{offSet1}\r\n";
 
-            await client.SendAsync(Encoding.UTF8.GetBytes($"{offSet1}\r\n"), SocketFlags.None);
+            await client.SendAsync(Encoding.UTF8.GetBytes(response), SocketFlags.None);
 
             if (getack.Equals("GETACK", StringComparison.OrdinalIgnoreCase))
             {
