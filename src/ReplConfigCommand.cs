@@ -9,6 +9,9 @@ namespace codecrafters_redis.src
         {
             string getack = commandParts[4];
 
+            await client.SendAsync(Encoding.UTF8.GetBytes("getack\r\n"), SocketFlags.None);
+
+
             if (getack.Equals("GETACK", StringComparison.OrdinalIgnoreCase))
             {
                 var offSet = dataStore.GetOffSet().ToString();
