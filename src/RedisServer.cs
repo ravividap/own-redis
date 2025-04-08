@@ -110,17 +110,20 @@ namespace codecrafters_redis.src
 
                 var chunk = Encoding.ASCII.GetString(data, 0, bytesRead).Trim();
 
-                if (chunk.StartsWith("*"))
-                {
-                    var commands = redisCommandParser.ProcessData(data, data.Length);
-                    if (commands != null)
-                    {
-                        foreach (var command in commands)
-                        {
-                            _ = commandProcessor.ProcessCommand(server.Client, redisCommandParser.ConvertListToResp(command));
-                        }
-                    }
-                }
+                _ = commandProcessor.ProcessCommand(server.Client,  chunk);
+
+
+                //if (chunk.StartsWith("*"))
+                //{
+                //    var commands = redisCommandParser.ProcessData(data, data.Length);
+                //    if (commands != null)
+                //    {
+                //        foreach (var command in commands)
+                //        {
+                //            _ = commandProcessor.ProcessCommand(server.Client, redisCommandParser.ConvertListToResp(command));
+                //        }
+                //    }
+                //}
             }
         }
 
