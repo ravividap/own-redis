@@ -7,14 +7,8 @@ namespace codecrafters_redis.src
     {
         public async Task ExecuteAsync(Socket client, string[] commandParts)
         {
-            if (isSlave) 
-            {
-                dataStore.SetOffSet(14);
-            }
-            else
-            {
-                await client.SendAsync(Encoding.UTF8.GetBytes("+PONG\r\n"), SocketFlags.None);
-            }
+            dataStore.SetOffSet(14);
+            await client.SendAsync(Encoding.UTF8.GetBytes("+PONG\r\n"), SocketFlags.None);
         }
     }
 }
